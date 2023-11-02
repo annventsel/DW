@@ -1,25 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import ArticlePage from './components/ArticlePage'
+import StartPage from './components/StartPage';
+import ConfigPage from './components/ConfigPage';
+import client from './apolloClient';
+import { ApolloProvider } from '@apollo/client';
 
-function App() {
+const DWApp = () => {
+  useEffect(() => {
+    const handleKeyUp = (event) => {
+      switch(event.key) {
+        case 'ArrowUp':
+          // Прокрутить вверх на один экран
+          window.scrollBy(0, -window.innerHeight);
+          break;
+        case 'ArrowDown':
+          // Прокрутить вниз на один экран
+          window.scrollBy(0, window.innerHeight);
+          break;
+        case 'Enter':
+          // Функция выбора (в настоящее время не используется)
+          break;
+        case '#':
+          // Прокрутить вниз до навигационной области внизу страницы
+          window.scrollTo(0, document.body.scrollHeight);
+          break;
+        case '0':
+          // Прокрутить вверх до верхней части страницы
+          window.scrollTo(0, 0);
+          break;
+        case '*':
+          // Перейти к списку языков на странице конфигурации
+          window.location.href = '/config';
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ApolloProvider client={client}> 
+    <Router>
+      <Routes>
+        <Route path="/a/:id" element={<ArticlePage />} />
+        <Route path="/s/:id" element={<StartPage />} />
+        <Route path="/config" element={<ConfigPage />} />
+        <Route path="/" element={<Navigate to="/s/home" />} />
+      </Routes>
+    </Router>
+    </ApolloProvider>
   );
-}
+};
 
-export default App;
+export default DWApp;
